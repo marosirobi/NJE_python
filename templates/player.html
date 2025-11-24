@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Python HLS Streamer</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            padding-top: 50px;
+            background: #222;
+            color: white;
+        }
+        video { width: 80%; max-width: 800px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+    <div>
+        <h2>Lejátszás: {{ video_id }}</h2>
+        <video id="video" controls></video>
+    </div>
+
+    <script>
+        var video = document.getElementById('video');
+
+        // Már NEM KELL a ?token=... a végére!
+        // A böngésző a háttérben automatikusan küldi a sütit.
+        var videoSrc = '/hls/{{ video_id }}/master.m3u8';
+
+        if (Hls.isSupported()) {
+            var hls = new Hls({
+                xhrSetup: function(xhr, url) {
+                    // Ez biztosítja, hogy a sütiket elküldje (Cross-origin esetén fontos, itt opcionális, de jó szokás)
+                    xhr.withCredentials = true;
+                }
+            });
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                video.play();
+            });
+        }
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+services:
+  stream-server:
+    build: .
+    container_name: python-video-streamer
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./videos:/app/videos
+      - ./hls_output:/app/hls_output
+      - ./templates:/app/templates
+    restart: unless-stopped
